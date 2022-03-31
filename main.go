@@ -12,7 +12,7 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprint(w, "请求路径为："+r.URL.Path)
 
 	if r.URL.Path == "/" {
-		fmt.Fprint(w, "<h1>Hello,这里是Ruan goblog</h1>")
+		fmt.Fprint(w, "<h1>Hello,这里是Ruan goblog!</h1>")
 	} else if r.URL.Path == "/about" {
 		fmt.Fprint(w, "此博客用于记录阿翔的编程笔记，如果有什么建议，请联系 "+"<a href=\"mailto:734162396@qq.com\">RuanZzzz@example.com</a>")
 	} else {
