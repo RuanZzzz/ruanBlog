@@ -10,6 +10,7 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprint 将 <h1>Hello, 这里是 goblog</h1> 子串写入 http.ResponseWriter，即可响应用户请求
 	//fmt.Fprint(w, "<h1>Hello, 这里是 goblog</h1>")
 	//fmt.Fprint(w, "请求路径为："+r.URL.Path)
+	w.Header().Set("Content-type", "text/html; charset=utf-8")
 
 	if r.URL.Path == "/" {
 		fmt.Fprint(w, "<h1>Hello,这里是Ruan goblog!</h1>")
