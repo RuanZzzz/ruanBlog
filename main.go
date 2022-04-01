@@ -17,6 +17,8 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 	} else if r.URL.Path == "/about" {
 		fmt.Fprint(w, "此博客用于记录阿翔的编程笔记，如果有什么建议，请联系 "+"<a href=\"mailto:734162396@qq.com\">RuanZzzz@example.com</a>")
 	} else {
+		// 设置状态码
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, "<h1>未找到请求页面 :(</h1>"+"<p>如果有疑惑请联系我们</p>")
 	}
 
