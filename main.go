@@ -6,27 +6,31 @@ import (
 )
 
 // http.Request是用户的请求信息，一般用 r 作为简写
-func handlerFunc(w http.ResponseWriter, r *http.Request) {
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	// fmt.Fprint 将 <h1>Hello, 这里是 goblog</h1> 子串写入 http.ResponseWriter，即可响应用户请求
 	//fmt.Fprint(w, "<h1>Hello, 这里是 goblog</h1>")
 	//fmt.Fprint(w, "请求路径为："+r.URL.Path)
-	w.Header().Set("Content-type", "text/html; charset=utf-8")
 
+	w.Header().Set("Content-type", "text/html; charset=utf-8")
 	if r.URL.Path == "/" {
 		fmt.Fprint(w, "<h1>Hello,这里是Ruan goblog!</h1>")
-	} else if r.URL.Path == "/about" {
-		fmt.Fprint(w, "此博客用于记录阿翔的编程笔记，如果有什么建议，请联系 "+"<a href=\"mailto:734162396@qq.com\">RuanZzzz@example.com</a>")
 	} else {
 		// 设置状态码
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, "<h1>未找到请求页面 :(</h1>"+"<p>如果有疑惑请联系我们</p>")
 	}
-
 }
+
+func aboutHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "text/html; charset=utf-8")
+	fmt.Fprint(w, "此博客用于记录阿翔的编程笔记，如果有什么建议，请联系 "+"<a href=\"mailto:734162396@qq.com\">RuanZzzz@example.com</a>")
+}
+
 func main() {
-	// 用以指定处理 HTTP 请求的函数
-	// http.HandleFunc 里传参的 / 表示：任意路径
-	http.HandleFunc("/", handlerFunc)
+	router := http.NewServeMux()
+
+	router.HandleFunc("/", defaultHandler)
+	router.HandleFunc("/about", aboutHandler)
 	// 监听本地 3000 端口以提供服务
-	http.ListenAndServe(":3000", nil)
+	http.ListenAndServe(":3000", router)
 }
