@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -116,11 +117,15 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 检查是否有错误
 	if len(errors) == 0 {
-		fmt.Fprint(w, "验证通过！<br>")
-		fmt.Fprintf(w, "title 的值为：%v <br>", title)
-		fmt.Fprintf(w, "title 的长度为：%v <br>", len(title))
-		fmt.Fprintf(w, "body 的值为：%v <br>", body)
-		fmt.Fprintf(w, "body 的长度为：%v <br>", len(body))
+		lastInsertID, err := saveArticleToDB(title, body)
+		if lastInsertID > 0 {
+			fmt.Fprint(w, "插入成功，ID为"+strconv.FormatInt(lastInsertID, 10))
+		} else {
+			checkError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, "500服务器内部错误")
+		}
+
 	} else {
 		storeURL, _ := router.Get("articles.store").URL()
 
@@ -143,6 +148,48 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+}
+
+func saveArticleToDB(title string, body string) (int64, error) {
+	// 变量初始化
+	/*
+		sql.Result 的对象如下：
+		type Result interface {
+			// 使用 INSERT 向数据插入记录，数据表有自增 ID 时，该函数有返回值
+			LastInsertId() (int64, error)
+			// 表示影响的数据表行数，常用于 UPDATE/DELETE 等 SQL 语句中
+			RowsAffected() (int64, error)
+		}
+	*/
+	var (
+		id   int64
+		err  error
+		rs   sql.Result
+		stmt *sql.Stmt
+	)
+
+	// 1、获取一个 prepare 声明语句
+	stmt, err = db.Prepare("INSERT INTO articles (title, body) VALUES(?,?)") // 使用SQL向mysql发送一次请求，此方法返回一个 *sql.Stmt 指针对象
+	// 错误检测
+	if err != nil {
+		return 0, err
+	}
+
+	// 2、在此函数运行结束后关闭此语句，防止占用 SQL 连接
+	defer stmt.Close() // defer 延迟执行语句
+
+	// 3、执行请求，传参进入绑定的内容（真正执行sql处）
+	rs, err = stmt.Exec(title, body)
+	if err != nil {
+		return 0, err
+	}
+
+	// 4、插入成功的话，会返回自增ID
+	if id, err = rs.LastInsertId(); id > 0 {
+		return id, nil
+	}
+
+	return 0, err
 }
 
 func articlesCreateHandler(w http.ResponseWriter, r *http.Request) {
@@ -191,7 +238,7 @@ func removeTrailingSlash(next http.Handler) http.Handler {
 
 func main() {
 	initDB()
-	createTables()
+	//createTables()
 
 	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
 	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
