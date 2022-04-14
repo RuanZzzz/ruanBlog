@@ -98,7 +98,7 @@ func (a Article) Link() string {
 
 func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 	// 1、获取URL参数
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	// 2、读取对应文章数据
 	article, err := getArticleByID(id)
@@ -132,14 +132,6 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
- * 通过传参URL路由参数名称获取值
- */
-func getRouteVariable(parameterName string, r *http.Request) string {
-	vars := mux.Vars(r)
-	return vars[parameterName]
-}
-
-/*
  * 通过id获取文章详情信息
  */
 func getArticleByID(id string) (Article, error) {
@@ -153,7 +145,7 @@ func getArticleByID(id string) (Article, error) {
 func articlesEditHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 1、获取 URL 参数
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	// 2、读取对应的文章数据
 	article, err := getArticleByID(id)
@@ -190,7 +182,7 @@ func articlesEditHandler(w http.ResponseWriter, r *http.Request) {
 
 func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	// 1. 获取 URL 参数
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	// 2. 读取对应的文章数据，仅看是否会报错
 	_, err := getArticleByID(id)
@@ -444,7 +436,7 @@ func removeTrailingSlash(next http.Handler) http.Handler {
 
 func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	// 1. 获取 URL 参数
-	id := getRouteVariable("id", r)
+	id := route.GetRouteVariable("id", r)
 
 	// 2. 读取对应的文章数据
 	article, err := getArticleByID(id)
@@ -485,17 +477,6 @@ func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-}
-
-// RouteName2URL 通过路由名称获取URL
-func RouteName2URL(routeName string, pairs ...string) string {
-	url, err := router.Get(routeName).URL(pairs...)
-	if err != nil {
-		checkError(err)
-		return ""
-	}
-
-	return url.String()
 }
 
 // Int64ToString 将 int64 转换为 string
