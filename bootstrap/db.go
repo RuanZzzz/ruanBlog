@@ -9,7 +9,7 @@ import (
 func SetupDB() {
 
 	// 建立数据库连接池
-	db := model.ConnectDB
+	db := model.ConnectDB()
 
 	// 命令行打印数据库请求的信息
 	sqlDB, _ := db.DB()
